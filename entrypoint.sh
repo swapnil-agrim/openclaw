@@ -35,4 +35,4 @@ sed -i "s/\"mode\": \"token\"/\"mode\": \"token\",\n      \"token\": \"${OPENCLA
 
 echo "Config created."
 
-exec openclaw gateway --port 18789 --verbose}
+exec openclaw gateway --port 18789 --verbose
