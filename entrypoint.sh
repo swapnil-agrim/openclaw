@@ -18,6 +18,12 @@ cat > /data/.openclaw/openclaw.json << 'JSONEOF'
     },
     "trustedProxies": ["0.0.0.0/0"]
   },
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "dmPolicy": "pairing"
+    }
+  },
   "agents": {
     "defaults": {
       "model": {
@@ -28,8 +34,12 @@ cat > /data/.openclaw/openclaw.json << 'JSONEOF'
 }
 JSONEOF
 
-# Inject token from env var
 sed -i "s/\"mode\": \"token\"/\"mode\": \"token\",\n      \"token\": \"${OPENCLAW_GATEWAY_TOKEN}\"/" /data/.openclaw/openclaw.json
+
+# Inject Telegram bot token if set
+if [ -n "$TELEGRAM_BOT_TOKEN" ]; then
+  sed -i "s/\"enabled\": true/\"enabled\": true,\n      \"botToken\": \"${TELEGRAM_BOT_TOKEN}\"/" /data/.openclaw/openclaw.json
+fi
 
 echo "Config created."
 
