@@ -31,8 +31,11 @@ cat > /data/.openclaw/openclaw.json << JSONEOF
       "enabled": true,
       "botToken": "${SLACK_BOT_TOKEN}",
       "appToken": "${SLACK_APP_TOKEN}",
-      "dmPolicy": "pairing",
       "groupPolicy": "allowlist",
+      "dm": {
+        "enabled": true,
+        "policy": "pairing"
+      },
       "channels": {
         "${SLACK_ALLOWED_CHANNEL}": {
           "allow": true,
