@@ -26,6 +26,19 @@ cat > /data/.openclaw/openclaw.json << JSONEOF
       "enabled": true,
       "botToken": "${TELEGRAM_BOT_TOKEN}",
       "dmPolicy": "pairing"
+    },
+    "slack": {
+      "enabled": true,
+      "botToken": "${SLACK_BOT_TOKEN}",
+      "appToken": "${SLACK_APP_TOKEN}",
+      "dmPolicy": "pairing",
+      "groupPolicy": "allowlist",
+      "channels": {
+        "${SLACK_ALLOWED_CHANNEL}": {
+          "allow": true,
+          "requireMention": true
+        }
+      }
     }
   },
   "agents": {
