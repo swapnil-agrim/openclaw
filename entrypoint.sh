@@ -12,7 +12,8 @@ if [ ! -f /data/.openclaw/openclaw.json ]; then
     "auth": {
       "mode": "token",
       "token": "${OPENCLAW_GATEWAY_TOKEN}"
-    }
+    },
+    "trustedProxies": ["0.0.0.0/0"]
   },
   "agents": {
     "defaults": {
