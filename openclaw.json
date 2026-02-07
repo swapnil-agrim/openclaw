@@ -1,0 +1,16 @@
+{
+  "gateway": {
+    "bind": "lan",
+    "auth": {
+      "mode": "token",
+      "token": "YOUR_STRONG_TOKEN_HERE"
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "anthropic/claude-haiku-4-5-20251001"
+      }
+    }
+  }
+}

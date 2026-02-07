@@ -22,5 +22,5 @@ RUN mkdir -p /data/.openclaw /data/workspace
 # Expose gateway port
 EXPOSE 18789
 
-# Start the gateway
-CMD ["openclaw", "gateway", "--host", "0.0.0.0", "--port", "18789"]
+COPY openclaw.json /data/.openclaw/openclaw.json
+CMD ["openclaw", "gateway", "--port", "18789", "--verbose"]
