@@ -3,10 +3,9 @@ set -e
 
 mkdir -p /data/.openclaw /data/workspace
 
-# Force recreate config (remove this rm line after first successful deploy)
 rm -f /data/.openclaw/openclaw.json
 
-cat <<EOF > /data/.openclaw/openclaw.json
+cat > /data/.openclaw/openclaw.json << 'JSONEOF'
 {
   "gateway": {
     "mode": "local",
@@ -17,8 +16,7 @@ cat <<EOF > /data/.openclaw/openclaw.json
       "allowInsecureAuth": true
     },
     "auth": {
-      "mode": "token",
-      "token": "${OPENCLAW_GATEWAY_TOKEN}"
+      "mode": "token"
     },
     "trustedProxies": ["0.0.0.0/0"]
   },
@@ -30,3 +28,11 @@ cat <<EOF > /data/.openclaw/openclaw.json
     }
   }
 }
+JSONEOF
+
+# Inject token from env var
+sed -i "s/\"mode\": \"token\"/\"mode\": \"token\",\n      \"token\": \"${OPENCLAW_GATEWAY_TOKEN}\"/" /data/.openclaw/openclaw.json
+
+echo "Config created."
+
+exec openclaw gateway --port 18789 --verbose}
