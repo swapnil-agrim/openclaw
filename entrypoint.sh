@@ -3,8 +3,6 @@ set -e
 
 mkdir -p /data/.openclaw /data/workspace
 
-rm -f /data/.openclaw/openclaw.json
-
 cat > /data/.openclaw/openclaw.json << 'JSONEOF'
 {
   "gateway": {
