@@ -3,7 +3,9 @@ set -e
 
 mkdir -p /data/.openclaw /data/workspace
 
-cat > /data/.openclaw/openclaw.json << 'JSONEOF'
+rm -f /data/.openclaw/openclaw.json
+
+cat > /data/.openclaw/openclaw.json << JSONEOF
 {
   "gateway": {
     "mode": "local",
@@ -14,13 +16,15 @@ cat > /data/.openclaw/openclaw.json << 'JSONEOF'
       "allowInsecureAuth": true
     },
     "auth": {
-      "mode": "token"
+      "mode": "token",
+      "token": "${OPENCLAW_GATEWAY_TOKEN}"
     },
     "trustedProxies": ["0.0.0.0/0"]
   },
   "channels": {
     "telegram": {
       "enabled": true,
+      "botToken": "${TELEGRAM_BOT_TOKEN}",
       "dmPolicy": "pairing"
     }
   },
@@ -33,13 +37,6 @@ cat > /data/.openclaw/openclaw.json << 'JSONEOF'
   }
 }
 JSONEOF
-
-sed -i "s/\"mode\": \"token\"/\"mode\": \"token\",\n      \"token\": \"${OPENCLAW_GATEWAY_TOKEN}\"/" /data/.openclaw/openclaw.json
-
-# Inject Telegram bot token if set
-if [ -n "$TELEGRAM_BOT_TOKEN" ]; then
-  sed -i "s/\"enabled\": true/\"enabled\": true,\n      \"botToken\": \"${TELEGRAM_BOT_TOKEN}\"/" /data/.openclaw/openclaw.json
-fi
 
 echo "Config created."
 
