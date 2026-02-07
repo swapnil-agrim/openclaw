@@ -3,12 +3,19 @@ set -e
 
 mkdir -p /data/.openclaw /data/workspace
 
-if [ ! -f /data/.openclaw/openclaw.json ]; then
-  cat <<EOF > /data/.openclaw/openclaw.json
+# Force recreate config (remove this rm line after first successful deploy)
+rm -f /data/.openclaw/openclaw.json
+
+cat <<EOF > /data/.openclaw/openclaw.json
 {
   "gateway": {
     "mode": "local",
     "bind": "lan",
+    "port": 18789,
+    "controlUi": {
+      "enabled": true,
+      "allowInsecureAuth": true
+    },
     "auth": {
       "mode": "token",
       "token": "${OPENCLAW_GATEWAY_TOKEN}"
@@ -23,8 +30,3 @@ if [ ! -f /data/.openclaw/openclaw.json ]; then
     }
   }
 }
-EOF
-  echo "Config created."
-fi
-
-exec openclaw gateway --port 18789 --verbose
