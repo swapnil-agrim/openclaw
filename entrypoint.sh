@@ -47,7 +47,7 @@ cat > /data/.openclaw/openclaw.json << JSONEOF
   "agents": {
     "defaults": {
       "model": {
-        "primary": "anthropic/claude-haiku-4-5-20251001"
+        "primary": "anthropic/claude-sonnet-4-5-20250929"
       }
     }
   }
