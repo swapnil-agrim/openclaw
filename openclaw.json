@@ -36,22 +36,10 @@
       }
     }
   },
-  "mcpServers": {
-    "tavily": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-tavily"],
-      "env": {
-        "TAVILY_API_KEY": "${TAVILY_API_KEY}"
-      }
-    }
-  },
   "agents": {
     "defaults": {
       "model": {
         "primary": "anthropic/claude-sonnet-4-5-20250929"
-      },
-      "apiKeys": {
-        "anthropic": "${ANTHROPIC_API_KEY}"
       }
     }
   }

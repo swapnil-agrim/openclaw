@@ -8,12 +8,10 @@ mkdir -p /home/node/.openclaw /data/workspace
 cp /app/openclaw.json /home/node/.openclaw/openclaw.json
 
 # Replace environment variables in config
-sed -i "s|\${ANTHROPIC_API_KEY}|${ANTHROPIC_API_KEY}|g" /home/node/.openclaw/openclaw.json
 sed -i "s|\${TELEGRAM_BOT_TOKEN}|${TELEGRAM_BOT_TOKEN}|g" /home/node/.openclaw/openclaw.json
 sed -i "s|\${SLACK_BOT_TOKEN}|${SLACK_BOT_TOKEN}|g" /home/node/.openclaw/openclaw.json
 sed -i "s|\${SLACK_APP_TOKEN}|${SLACK_APP_TOKEN}|g" /home/node/.openclaw/openclaw.json
 sed -i "s|\${SLACK_ALLOWED_CHANNEL}|${SLACK_ALLOWED_CHANNEL}|g" /home/node/.openclaw/openclaw.json
-sed -i "s|\${TAVILY_API_KEY}|${TAVILY_API_KEY}|g" /home/node/.openclaw/openclaw.json
 sed -i "s|\${OPENCLAW_GATEWAY_TOKEN}|${OPENCLAW_GATEWAY_TOKEN}|g" /home/node/.openclaw/openclaw.json
 
 echo "Config created and environment variables replaced."
@@ -287,6 +285,10 @@ fi
 export OPENCLAW_STATE_DIR=/home/node/.openclaw
 export OPENCLAW_WORKSPACE_DIR=/data/workspace
 export OPENCLAW_CONFIG_PATH=/home/node/.openclaw/openclaw.json
+
+# Set API keys via environment variables (OpenClaw reads these automatically)
+export ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY}"
+export TAVILY_API_KEY="${TAVILY_API_KEY}"
 
 # Start OpenClaw gateway
 echo "Starting OpenClaw gateway..."
