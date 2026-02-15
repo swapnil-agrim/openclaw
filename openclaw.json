@@ -1,15 +1,57 @@
 {
   "gateway": {
+    "mode": "local",
     "bind": "lan",
+    "port": 18789,
+    "controlUi": {
+      "enabled": true,
+      "allowInsecureAuth": true
+    },
     "auth": {
       "mode": "token",
-      "token": "YOUR_STRONG_TOKEN_HERE"
+      "token": "${OPENCLAW_GATEWAY_TOKEN}"
+    },
+    "trustedProxies": ["0.0.0.0/0"]
+  },
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "botToken": "${TELEGRAM_BOT_TOKEN}",
+      "dmPolicy": "pairing"
+    },
+    "slack": {
+      "enabled": true,
+      "botToken": "${SLACK_BOT_TOKEN}",
+      "appToken": "${SLACK_APP_TOKEN}",
+      "groupPolicy": "allowlist",
+      "dm": {
+        "enabled": true,
+        "policy": "pairing"
+      },
+      "channels": {
+        "${SLACK_ALLOWED_CHANNEL}": {
+          "allow": true,
+          "requireMention": true
+        }
+      }
+    }
+  },
+  "mcpServers": {
+    "tavily": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-tavily"],
+      "env": {
+        "TAVILY_API_KEY": "${TAVILY_API_KEY}"
+      }
     }
   },
   "agents": {
     "defaults": {
       "model": {
-        "primary": "anthropic/claude-haiku-4-5-20251001"
+        "primary": "anthropic/claude-sonnet-4-5-20250929"
+      },
+      "apiKeys": {
+        "anthropic": "${ANTHROPIC_API_KEY}"
       }
     }
   }

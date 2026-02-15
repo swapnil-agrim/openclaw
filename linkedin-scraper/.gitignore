@@ -1,0 +1,4 @@
+node_modules/
+linkedin-session.json
+.env
+*.log

@@ -12,6 +12,9 @@ ENV OPENCLAW_CONFIG_PATH=/data/.openclaw/openclaw.json
 
 EXPOSE 18789
 
+WORKDIR /app
+
+COPY openclaw.json /app/openclaw.json
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
