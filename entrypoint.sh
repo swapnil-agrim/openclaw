@@ -71,40 +71,72 @@ EOF
   cat > "$SEARXNG_SKILL_DIR/scripts/search.mjs" << 'EOF'
 import fetch from 'node-fetch';
 
+// More reliable SearXNG instances (updated 2026-02-15)
 const SEARXNG_INSTANCES = [
+  'https://searx.fmac.xyz',
+  'https://searx.tiekoetter.com',
+  'https://paulgo.io',
   'https://searx.be',
-  'https://search.bus-hit.me',
-  'https://searx.work'
+  'https://search.sapti.me',
+  'https://baresearch.org'
 ];
 
 async function searchSearXNG(instance, query) {
   const url = `${instance}/search?q=${encodeURIComponent(query)}&format=json&categories=general`;
 
-  const response = await fetch(url, {
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (compatible; OpenClaw/1.0)'
-    },
-    timeout: 10000
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
 
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': 'application/json'
+      },
+      signal: controller.signal
+    });
+
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      throw new Error('Response is not JSON');
+    }
+
+    return await response.json();
+  } catch (error) {
+    clearTimeout(timeout);
+    throw error;
   }
-
-  return await response.json();
 }
 
 async function search(query) {
+  const errors = [];
+
   for (const instance of SEARXNG_INSTANCES) {
     try {
       console.error(`Trying ${instance}...`);
       const data = await searchSearXNG(instance, query);
 
-      const results = (data.results || []).slice(0, 10).map(r => ({
-        title: r.title,
-        url: r.url,
+      if (!data.results || data.results.length === 0) {
+        console.error(`${instance} returned no results, trying next...`);
+        continue;
+      }
+
+      const results = data.results.slice(0, 10).map(r => ({
+        title: r.title || 'No title',
+        url: r.url || '',
         snippet: r.content || r.description || ''
-      }));
+      })).filter(r => r.url);
+
+      if (results.length === 0) {
+        console.error(`${instance} returned empty results after filtering`);
+        continue;
+      }
 
       console.log(JSON.stringify({
         success: true,
@@ -115,11 +147,23 @@ async function search(query) {
 
       return;
     } catch (error) {
-      console.error(`Failed with ${instance}: ${error.message}`);
+      const errorMsg = `${instance}: ${error.message}`;
+      console.error(`Failed - ${errorMsg}`);
+      errors.push(errorMsg);
     }
   }
 
-  console.error('All SearXNG instances failed');
+  // All instances failed, return error summary
+  console.error('All SearXNG instances failed. Errors:');
+  errors.forEach(err => console.error(`  - ${err}`));
+
+  console.log(JSON.stringify({
+    success: false,
+    error: 'All SearXNG instances are currently unavailable',
+    tried: SEARXNG_INSTANCES.length,
+    suggestion: 'Please try again in a few moments or use a different search method'
+  }, null, 2));
+
   process.exit(1);
 }
 
@@ -283,6 +327,138 @@ EOF
   cd "$LINKEDIN_SKILL_DIR"
   npm install
   echo "LinkedIn research skill installed."
+fi
+
+# Install Tavily Search Skill (optional - only if API key is set)
+TAVILY_SKILL_DIR="/root/.openclaw/skills/tavily-search"
+if [ ! -d "$TAVILY_SKILL_DIR" ] && [ -n "$TAVILY_API_KEY" ]; then
+  echo "Installing Tavily search skill..."
+  mkdir -p "$TAVILY_SKILL_DIR/scripts"
+
+  cat > "$TAVILY_SKILL_DIR/SKILL.md" << 'EOF'
+---
+name: tavily-search
+description: AI-optimized web search using Tavily API (primary search if API key provided)
+commands:
+  - name: search
+    description: Search the web using Tavily
+    args:
+      - name: query
+        description: Search query
+        required: true
+---
+
+# Tavily Search
+
+High-quality AI-optimized web search using Tavily API.
+
+## Usage
+
+```bash
+tavily-search search "your query here"
+```
+
+## Features
+
+- AI-optimized search results
+- Direct answers when available
+- Better quality than SearXNG
+- Requires API key (1000 free searches/month)
+
+## Setup
+
+Set TAVILY_API_KEY environment variable in Railway.
+EOF
+
+  cat > "$TAVILY_SKILL_DIR/package.json" << 'EOF'
+{
+  "name": "tavily-search",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "node-fetch": "^3.3.0"
+  }
+}
+EOF
+
+  cat > "$TAVILY_SKILL_DIR/scripts/search.mjs" << 'EOF'
+import fetch from 'node-fetch';
+
+const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
+
+if (!TAVILY_API_KEY) {
+  console.error('Error: TAVILY_API_KEY environment variable not set');
+  console.log(JSON.stringify({
+    success: false,
+    error: 'TAVILY_API_KEY not configured'
+  }, null, 2));
+  process.exit(1);
+}
+
+async function search(query) {
+  try {
+    const response = await fetch('https://api.tavily.com/search', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        api_key: TAVILY_API_KEY,
+        query: query,
+        search_depth: 'basic',
+        include_answer: true,
+        include_images: false,
+        include_raw_content: false,
+        max_results: 10
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Tavily API error: ${response.status} - ${error}`);
+    }
+
+    const data = await response.json();
+
+    const results = (data.results || []).map(r => ({
+      title: r.title,
+      url: r.url,
+      snippet: r.content || ''
+    }));
+
+    console.log(JSON.stringify({
+      success: true,
+      answer: data.answer || null,
+      count: results.length,
+      results
+    }, null, 2));
+
+  } catch (error) {
+    console.error('Tavily search failed:', error.message);
+    console.log(JSON.stringify({
+      success: false,
+      error: error.message
+    }, null, 2));
+    process.exit(1);
+  }
+}
+
+const query = process.argv[2];
+if (!query) {
+  console.error('Usage: search.mjs <query>');
+  process.exit(1);
+}
+
+search(query);
+EOF
+
+  cd "$TAVILY_SKILL_DIR"
+  npm install
+  echo "Tavily search skill installed."
+elif [ -n "$TAVILY_API_KEY" ]; then
+  echo "Tavily search skill already installed."
+else
+  echo "Tavily API key not set, skipping Tavily skill installation."
 fi
 
 # Set environment variables for OpenClaw

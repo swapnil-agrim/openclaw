@@ -4,10 +4,12 @@ This document explains how search functionality works in your OpenClaw deploymen
 
 ## Search Strategy
 
-Your OpenClaw instance uses a **dual-search approach**:
+Your OpenClaw instance uses a **flexible dual-search approach**:
 
-1. **Primary**: SearXNG (Free, Unlimited) via auto-installed skill
-2. **Optional**: Tavily API (Paid, 1000 free searches/month)
+1. **Primary** (if TAVILY_API_KEY is set): Tavily API - High-quality AI-optimized search
+2. **Fallback** (always available): SearXNG - Free unlimited search across multiple instances
+
+**Recommendation:** Use both for best reliability!
 
 ## Why SearXNG Instead of Tavily?
 
@@ -27,10 +29,13 @@ The SearXNG skill is automatically installed when the container starts:
 
 **Location**: `/home/node/.openclaw/skills/searxng-fallback/`
 
-**Public Instances Used**:
+**Public Instances Used** (tries in order):
+- `https://searx.fmac.xyz`
+- `https://searx.tiekoetter.com`
+- `https://paulgo.io`
 - `https://searx.be`
-- `https://search.bus-hit.me`
-- `https://searx.work`
+- `https://search.sapti.me`
+- `https://baresearch.org`
 
 **Features**:
 - Automatic fallback between instances
@@ -59,54 +64,26 @@ Advanced users can call the skill directly:
 searxng-fallback search "your query here"
 ```
 
-## Optional: Adding Tavily (Advanced)
+## Tavily Search (Auto-Installed if API Key Present)
 
-If you want to add Tavily as an additional search option, you'll need to create a custom skill.
+Tavily is now **automatically installed** if you set the `TAVILY_API_KEY` environment variable.
 
-### Create Tavily Skill
+### Enable Tavily Search
 
-1. **Create skill directory structure**:
-   ```bash
-   /home/node/.openclaw/skills/tavily-search/
-   ├── SKILL.md
-   ├── package.json
-   └── scripts/
-       └── search.mjs
-   ```
+**Step 1:** Get Tavily API key from https://tavily.com (1000 free searches/month)
 
-2. **Add to entrypoint.sh** (similar to SearXNG skill):
-   ```bash
-   TAVILY_SKILL_DIR="/home/node/.openclaw/skills/tavily-search"
-   if [ ! -d "$TAVILY_SKILL_DIR" ]; then
-     echo "Installing Tavily search skill..."
-     # Create skill files here
-   fi
-   ```
+**Step 2:** Add to Railway environment variables:
+```bash
+TAVILY_API_KEY=tvly-xxxxxxxxxxxxx
+```
 
-3. **Implement search.mjs**:
-   ```javascript
-   import fetch from 'node-fetch';
+**Step 3:** Redeploy - Tavily skill will auto-install!
 
-   const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
-
-   async function search(query) {
-     const response = await fetch('https://api.tavily.com/search', {
-       method: 'POST',
-       headers: { 'Content-Type': 'application/json' },
-       body: JSON.stringify({
-         api_key: TAVILY_API_KEY,
-         query: query,
-         search_depth: 'basic',
-         include_answer: true
-       })
-     });
-
-     const data = await response.json();
-     console.log(JSON.stringify(data, null, 2));
-   }
-
-   search(process.argv[2]);
-   ```
+**Verify** in logs:
+```
+Installing Tavily search skill...
+Tavily search skill installed.
+```
 
 ### Tavily Benefits
 
