@@ -51,7 +51,7 @@ With the volume mounted at `/root/.openclaw`:
 /root/.openclaw/
 ├── openclaw.json          # Configuration (regenerated on each start)
 ├── workspace/             # ✅ PERSISTED
-│   ├── memory             # Agent memory
+│   ├── memory/            # Agent memory directory
 │   ├── MEMORY.md          # Conversation summaries
 │   └── <other files>      # Any files created by agent
 └── skills/                # ✅ PERSISTED
@@ -156,9 +156,9 @@ exit
 
 ### Primary Memory Files
 
-**Short-term memory:**
+**Short-term memory directory:**
 ```
-/root/.openclaw/workspace/memory
+/root/.openclaw/workspace/memory/
 ```
 
 **Long-term memory/summaries:**
@@ -173,8 +173,10 @@ Via Railway SSH:
 # SSH into container
 railway shell -s openclaw
 
-# View memory
-cat /root/.openclaw/workspace/memory
+# View memory directory
+ls -la /root/.openclaw/workspace/memory/
+
+# View long-term memory
 cat /root/.openclaw/workspace/MEMORY.md
 
 # List workspace files

@@ -51,15 +51,15 @@ Config invalid
 ```
 [tools] read failed: ENOENT: no such file or directory, access '/root/.openclaw/workspace/memory'
 [tools] read failed: ENOENT: no such file or directory, access '/root/.openclaw/workspace/MEMORY.md'
+[tools] write failed: EEXIST: file already exists, mkdir '/root/.openclaw/workspace/memory'
 ```
 
-**Root Cause:** Memory files don't exist on first run
+**Root Cause:** Memory structure doesn't exist on first run. Agent expects `memory` to be a directory, not a file.
 
 **Fix:**
 - Create workspace directory: `/root/.openclaw/workspace`
-- Create empty memory files on startup:
-  - `touch /root/.openclaw/workspace/memory`
-  - `touch /root/.openclaw/workspace/MEMORY.md`
+- Create memory as a directory: `mkdir -p /root/.openclaw/workspace/memory`
+- Create MEMORY.md file: `touch /root/.openclaw/workspace/MEMORY.md`
 
 **Files Changed:**
 - `entrypoint.sh` (lines 5-7, 16-18)
@@ -143,7 +143,7 @@ SEARXNG_SKILL_DIR="/root/.openclaw/skills/searxng-fallback"
 /root/.openclaw/
 ├── openclaw.json              # Config (regenerated each start)
 ├── workspace/                 # Memory & files (PERSISTED with volume)
-│   ├── memory                # Short-term memory
+│   ├── memory/               # Short-term memory directory
 │   ├── MEMORY.md             # Long-term summaries
 │   └── <user files>          # Agent-created files
 └── skills/                    # Skills (PERSISTED with volume)

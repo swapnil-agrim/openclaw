@@ -14,8 +14,8 @@ sed -i "s|\${SLACK_APP_TOKEN}|${SLACK_APP_TOKEN}|g" /root/.openclaw/openclaw.jso
 sed -i "s|\${SLACK_ALLOWED_CHANNEL}|${SLACK_ALLOWED_CHANNEL}|g" /root/.openclaw/openclaw.json
 sed -i "s|\${OPENCLAW_GATEWAY_TOKEN}|${OPENCLAW_GATEWAY_TOKEN}|g" /root/.openclaw/openclaw.json
 
-# Create memory file if it doesn't exist
-touch /root/.openclaw/workspace/memory
+# Create memory directory and files (agent expects memory to be a directory)
+mkdir -p /root/.openclaw/workspace/memory
 touch /root/.openclaw/workspace/MEMORY.md
 
 echo "Config created and environment variables replaced."
