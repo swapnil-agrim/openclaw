@@ -20,10 +20,11 @@ touch /root/.openclaw/workspace/MEMORY.md
 
 echo "Config created and environment variables replaced."
 
-# Install SearXNG Fallback Skill
+# Install SearXNG Fallback Skill (skip if Tavily is available)
 SEARXNG_SKILL_DIR="/root/.openclaw/skills/searxng-fallback"
-if [ ! -d "$SEARXNG_SKILL_DIR" ]; then
+if [ ! -d "$SEARXNG_SKILL_DIR" ] && [ -z "$TAVILY_API_KEY" ]; then
   echo "Installing SearXNG fallback skill..."
+  echo "NOTE: SearXNG public instances are unreliable. Consider using Tavily instead."
   mkdir -p "$SEARXNG_SKILL_DIR/scripts"
 
   cat > "$SEARXNG_SKILL_DIR/SKILL.md" << 'EOF'
@@ -179,6 +180,10 @@ EOF
   cd "$SEARXNG_SKILL_DIR"
   npm install
   echo "SearXNG skill installed."
+elif [ -n "$TAVILY_API_KEY" ]; then
+  echo "Skipping SearXNG (Tavily API key found - using Tavily for search instead)"
+else
+  echo "SearXNG skill already installed."
 fi
 
 # Install LinkedIn Research Skill
