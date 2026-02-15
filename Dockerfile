@@ -6,9 +6,10 @@ RUN apt-get update && apt-get install -y \
 
 RUN npm install -g openclaw@latest
 
-ENV OPENCLAW_STATE_DIR=/home/node/.openclaw
-ENV OPENCLAW_WORKSPACE_DIR=/data/workspace
-ENV OPENCLAW_CONFIG_PATH=/home/node/.openclaw/openclaw.json
+# Use /root since container runs as root by default
+ENV OPENCLAW_STATE_DIR=/root/.openclaw
+ENV OPENCLAW_WORKSPACE_DIR=/root/.openclaw/workspace
+ENV OPENCLAW_CONFIG_PATH=/root/.openclaw/openclaw.json
 
 EXPOSE 18789
 

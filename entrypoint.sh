@@ -1,23 +1,27 @@
 #!/bin/bash
 set -e
 
-# Create OpenClaw directories
-mkdir -p /home/node/.openclaw /data/workspace
+# Create OpenClaw directories (use /root since running as root)
+mkdir -p /root/.openclaw/workspace
 
 # Copy and process config file
-cp /app/openclaw.json /home/node/.openclaw/openclaw.json
+cp /app/openclaw.json /root/.openclaw/openclaw.json
 
 # Replace environment variables in config
-sed -i "s|\${TELEGRAM_BOT_TOKEN}|${TELEGRAM_BOT_TOKEN}|g" /home/node/.openclaw/openclaw.json
-sed -i "s|\${SLACK_BOT_TOKEN}|${SLACK_BOT_TOKEN}|g" /home/node/.openclaw/openclaw.json
-sed -i "s|\${SLACK_APP_TOKEN}|${SLACK_APP_TOKEN}|g" /home/node/.openclaw/openclaw.json
-sed -i "s|\${SLACK_ALLOWED_CHANNEL}|${SLACK_ALLOWED_CHANNEL}|g" /home/node/.openclaw/openclaw.json
-sed -i "s|\${OPENCLAW_GATEWAY_TOKEN}|${OPENCLAW_GATEWAY_TOKEN}|g" /home/node/.openclaw/openclaw.json
+sed -i "s|\${TELEGRAM_BOT_TOKEN}|${TELEGRAM_BOT_TOKEN}|g" /root/.openclaw/openclaw.json
+sed -i "s|\${SLACK_BOT_TOKEN}|${SLACK_BOT_TOKEN}|g" /root/.openclaw/openclaw.json
+sed -i "s|\${SLACK_APP_TOKEN}|${SLACK_APP_TOKEN}|g" /root/.openclaw/openclaw.json
+sed -i "s|\${SLACK_ALLOWED_CHANNEL}|${SLACK_ALLOWED_CHANNEL}|g" /root/.openclaw/openclaw.json
+sed -i "s|\${OPENCLAW_GATEWAY_TOKEN}|${OPENCLAW_GATEWAY_TOKEN}|g" /root/.openclaw/openclaw.json
+
+# Create memory file if it doesn't exist
+touch /root/.openclaw/workspace/memory
+touch /root/.openclaw/workspace/MEMORY.md
 
 echo "Config created and environment variables replaced."
 
 # Install SearXNG Fallback Skill
-SEARXNG_SKILL_DIR="/home/node/.openclaw/skills/searxng-fallback"
+SEARXNG_SKILL_DIR="/root/.openclaw/skills/searxng-fallback"
 if [ ! -d "$SEARXNG_SKILL_DIR" ]; then
   echo "Installing SearXNG fallback skill..."
   mkdir -p "$SEARXNG_SKILL_DIR/scripts"
@@ -134,7 +138,7 @@ EOF
 fi
 
 # Install LinkedIn Research Skill
-LINKEDIN_SKILL_DIR="/home/node/.openclaw/skills/linkedin-research"
+LINKEDIN_SKILL_DIR="/root/.openclaw/skills/linkedin-research"
 if [ ! -d "$LINKEDIN_SKILL_DIR" ]; then
   echo "Installing LinkedIn research skill..."
   mkdir -p "$LINKEDIN_SKILL_DIR/scripts"
@@ -282,14 +286,18 @@ EOF
 fi
 
 # Set environment variables for OpenClaw
-export OPENCLAW_STATE_DIR=/home/node/.openclaw
-export OPENCLAW_WORKSPACE_DIR=/data/workspace
-export OPENCLAW_CONFIG_PATH=/home/node/.openclaw/openclaw.json
+export OPENCLAW_STATE_DIR=/root/.openclaw
+export OPENCLAW_WORKSPACE_DIR=/root/.openclaw/workspace
+export OPENCLAW_CONFIG_PATH=/root/.openclaw/openclaw.json
 
 # Set API keys via environment variables (OpenClaw reads these automatically)
 export ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY}"
 export TAVILY_API_KEY="${TAVILY_API_KEY}"
 
-# Start OpenClaw gateway
 echo "Starting OpenClaw gateway..."
+echo "State dir: $OPENCLAW_STATE_DIR"
+echo "Workspace dir: $OPENCLAW_WORKSPACE_DIR"
+echo "Config path: $OPENCLAW_CONFIG_PATH"
+
+# Start OpenClaw gateway
 exec openclaw gateway
