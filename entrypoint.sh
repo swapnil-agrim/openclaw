@@ -283,6 +283,11 @@ EOF
   echo "LinkedIn research skill installed."
 fi
 
+# Set environment variables for OpenClaw
+export OPENCLAW_STATE_DIR=/home/node/.openclaw
+export OPENCLAW_WORKSPACE_DIR=/data/workspace
+export OPENCLAW_CONFIG_PATH=/home/node/.openclaw/openclaw.json
+
 # Start OpenClaw gateway
 echo "Starting OpenClaw gateway..."
-exec openclaw gateway --bind lan --allow-unconfigured --config /home/node/.openclaw/openclaw.json
+exec openclaw gateway
